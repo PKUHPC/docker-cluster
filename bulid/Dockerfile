@@ -106,7 +106,7 @@ RUN ulimit -n 10240;./client.sh docker
 
 COPY supervisor/ /etc/supervisor/conf.d/
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY bulid/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 WORKDIR /adapter/
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
