@@ -117,3 +117,7 @@ docker volume rm slurm-docker-cluster_etc_munge slurm-docker-cluster_etc_slurm s
 
 
 ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
+
+docker network create --subnet=10.100.20.0/24 scow
+
+firewall-cmd --add-rich-rule='rule family="ipv4" forward-port to-addr="172.18.0.6" to-port="5900-6900" protocol="tcp" port="5900-6900"'

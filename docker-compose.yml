@@ -12,6 +12,9 @@ services:
       MYSQL_PASSWORD: password
     volumes:
       - var_lib_mysql:/var/lib/mysql
+    networks:
+      scow:
+        ipv4_address: 10.100.20.10
 
   ldap:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/ldap:sh
@@ -23,6 +26,9 @@ services:
       - '389:389'   
     volumes:
       - ldap_data:/var/lib/ldap
+    networks:
+      scow:
+        ipv4_address: 10.100.20.11
 
   slurmdbd:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
@@ -43,6 +49,9 @@ services:
     depends_on:
       - mysql
       - ldap
+    networks:
+      scow:
+        ipv4_address: 10.100.20.12
 
   slurmctld:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
@@ -62,6 +71,9 @@ services:
       - '8999:8999'
     depends_on:
       - "slurmdbd"
+    networks:
+      scow:
+        ipv4_address: 10.100.20.13
 
   c1:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
@@ -78,6 +90,9 @@ services:
       - "6818"
     depends_on:
       - "slurmctld"
+    networks:
+      scow:
+        ipv4_address: 10.100.20.14
 
   login:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-login-21.08.6}
@@ -97,6 +112,13 @@ services:
       - '1022:22'
     depends_on:
       - "slurmctld"
+    networks:
+      scow:
+        ipv4_address: 10.100.20.15
+
+networks:
+  scow:
+    external: true
 
 volumes:
   etc_munge:
