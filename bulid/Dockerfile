@@ -19,6 +19,7 @@ RUN set -ex \
     && yum -y install \
        wget \
        openssh-server \
+       sudo \
        turbovnc \
        supervisor \
        procps \

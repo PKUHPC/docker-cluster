@@ -1,8 +1,8 @@
-version: "2"
+version: "2.2"
 
 services:
   mysql:
-    image: mariadb:10.10
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/mariadb:10.10
     hostname: mysql
     container_name: mysql
     environment:
@@ -12,11 +12,9 @@ services:
       MYSQL_PASSWORD: password
     volumes:
       - var_lib_mysql:/var/lib/mysql
-    networks:
-      innet:     
-        ipv4_address: 10.100.20.11
+
   ldap:
-    image: ldap:sh
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/ldap:sh
     hostname: ldap
     container_name: ldap
     expose:
@@ -25,12 +23,9 @@ services:
       - '389:389'   
     volumes:
       - ldap_data:/var/lib/ldap
-    networks:
-      innet:     
-        ipv4_address: 10.100.20.12
 
   slurmdbd:
-    image: slurm-docker-cluster:${IMAGE_TAG:-21.08.6}
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
     build:
       context: .
       args:
@@ -48,12 +43,9 @@ services:
     depends_on:
       - mysql
       - ldap
-    networks:
-      innet:     
-        ipv4_address: 10.100.20.13
 
   slurmctld:
-    image: slurm-docker-cluster:${IMAGE_TAG:-21.08.6}
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
     command: ["slurmctld"]
     container_name: slurmctld
     hostname: slurmctld
@@ -70,12 +62,9 @@ services:
       - '8999:8999'
     depends_on:
       - "slurmdbd"
-    networks:
-      innet:     
-        ipv4_address: 10.100.20.14
 
   c1:
-    image: slurm-docker-cluster:${IMAGE_TAG:-21.08.6}
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
     command: ["slurmd"]
     hostname: c1
     privileged: true
@@ -89,12 +78,9 @@ services:
       - "6818"
     depends_on:
       - "slurmctld"
-    networks:
-      innet:     
-        ipv4_address: 10.100.20.15
 
   login:
-    image: slurm-docker-cluster:${IMAGE_TAG:-21.08.6}
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-login-21.08.6}
     command: ["slurmd"]
     privileged: true
     hostname: login
@@ -111,17 +97,6 @@ services:
       - '1022:22'
     depends_on:
       - "slurmctld"
-    networks:
-      innet:  
-        ipv4_address: 10.100.20.16
-
-networks:
-  innet:  
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.100.20.0/24     #指定子网
-          gateway: 10.100.20.1       #指定网关
 
 volumes:
   etc_munge:
