@@ -1,0 +1,32 @@
+authType: ldap
+
+captcha: 
+  enabled: false
+
+tokenTimeoutSeconds: 36000
+ldap:
+  url: ldap://10.100.20.11
+  bindDN: cn=Manager,ou=hpc,o=pku
+  bindPassword: "admin"
+  searchBase: "ou=hpc,o=pku"
+  userFilter: "(uid=*)"
+
+  attrs:
+    uid: uid
+    name: cn
+
+    mail: mail
+
+  addUser:
+    userBase: "ou=People,ou=hpc,o=pku"
+    homeDir: /data/home/{{ userId }}
+    userIdDnKey: uid
+    groupStrategy: newGroupPerUser
+
+    newGroupPerUser:
+      groupBase: "ou=Group,ou=hpc,o=pku"
+      groupIdDnKey: cn
+
+
+    oneGroupForAllUsers:
+      gidNumber: 5000
