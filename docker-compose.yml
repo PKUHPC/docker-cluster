@@ -13,8 +13,8 @@ services:
     volumes:
       - var_lib_mysql:/var/lib/mysql
     networks:
-      scow:
-        ipv4_address: 10.100.20.10
+      slurm-net:
+        ipv4_address: 10.100.20.131
 
   ldap:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/ldap:sh
@@ -27,8 +27,8 @@ services:
     volumes:
       - ldap_data:/var/lib/ldap
     networks:
-      scow:
-        ipv4_address: 10.100.20.11
+      slurm-net:
+        ipv4_address: 10.100.20.132
 
   slurmdbd:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
@@ -50,8 +50,8 @@ services:
       - mysql
       - ldap
     networks:
-      scow:
-        ipv4_address: 10.100.20.12
+      slurm-net:
+        ipv4_address: 10.100.20.133
 
   slurmctld:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
@@ -72,8 +72,8 @@ services:
     depends_on:
       - "slurmdbd"
     networks:
-      scow:
-        ipv4_address: 10.100.20.13
+      slurm-net:
+        ipv4_address: 10.100.20.134
 
   c1:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
@@ -91,8 +91,8 @@ services:
     depends_on:
       - "slurmctld"
     networks:
-      scow:
-        ipv4_address: 10.100.20.14
+      slurm-net:
+        ipv4_address: 10.100.20.135
 
   login:
     image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-login-21.08.6}
@@ -105,19 +105,17 @@ services:
       - etc_slurm:/etc/slurm
       - slurm_jobdir:/data
       - var_log_slurm:/var/log/slurm
-      - /root/.ssh/id_rsa.pub:/root/.ssh/authorized_keys
+      - /root/.ssh/authorized_keys:/root/.ssh/authorized_keys
     expose:
       - "6818"
-    ports:
-      - '1022:22'
     depends_on:
       - "slurmctld"
     networks:
-      scow:
-        ipv4_address: 10.100.20.15
+      slurm-net:
+        ipv4_address: 10.100.20.136
 
 networks:
-  scow:
+  slurm-net:
     external: true
 
 volumes:

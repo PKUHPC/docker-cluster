@@ -121,3 +121,17 @@ ssh-keygen -t rsa -f ~/.ssh/id_rsa -P ''
 docker network create --subnet=10.100.20.0/24 scow
 
 firewall-cmd --add-rich-rule='rule family="ipv4" forward-port to-addr="172.18.0.6" to-port="5900-6900" protocol="tcp" port="5900-6900"'
+
+docker network create -d macvlan --subnet=192.168.8.0/24 --gateway=192.168.8.2  -o  parent=ens33 slurm-net
+
+
+docker network create -d macvlan --subnet=172.16.20.0/24 --gateway=172.16.20.254  -o  parent=ens192 slurm-net
+
+
+# 以下操作都在宿主机上运行，新增一个叫mynet(不要和容器的macvlan重名)的macvlan接口
+ip link add mynet link ens33 type macvlan mode bridge
+# 为该接口分配ip，并启用
+ip addr add 192.168.8.201 dev mynet
+ip link set mynet up
+# 修改路由，使宿主机到192.168.0.100的通信全部经由mynet进行
+ip route add 192.168.8.136 dev mynet
