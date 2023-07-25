@@ -1,3 +1,5 @@
+# 管理系统数据库的信息。
+# 如果直接使用scow-deployment提供的数据库，此部分内容不修改
 db:
   host: db
   port: 3306
@@ -13,5 +15,64 @@ fetchJobs:
     # 周期的cron表达式
     cron: "10 */10 * * * *"
 
+# 预定义的充值类型
 predefinedChargingTypes:
   - 测试
+
+# 创建账户时，账户名的规则。不设置就没有限制
+# accountNamePattern:
+  # 正则表达式
+  # regex: ""
+
+  # 出错时的消息
+  # errorMessage: ""
+
+# 创建用户相关配置
+# createUser:
+
+  # 是否允许用户从SCOW中创建用户
+  # enabled: true
+
+  # SCOW中创建用户界面是使用内置的（builtin）或者使用外置页面（external）
+  # 默认builtin
+  # type: builtin
+
+  # 内置创建用户界面配置
+  # builtin:
+    # 用户ID的格式
+    # userIdPattern:
+      # 正则表达式
+      # regex: ""
+
+      # 出错时的消息
+      # errorMessage: ""
+
+  # 外置页面配置
+  # external:
+    # 外置页面URL
+    # url: http://your-create-user-page.com
+
+
+# 新增管理系统导航链接相关配置
+# navLinks:
+
+  # 链接名
+  # text: ""
+
+  # 链接地址
+  # url: ""
+
+  # 自定义图标地址,可选填
+  # iconPath: ""
+
+  # 可以看到这个链接的用户,可选填
+  # 用户类型： user, accountUser, accountAdmin, accountOwner, tenantFinance, tenantAdmin, platformAdmin, platformFinance
+  # allowedRoles: []
+
+  # 二级导航,可选填
+  # children:
+    # 二级导航相关配置，与一级导航相同，但是不允许再设置children
+    # text: ""
+    # url: ""
+    # iconPath: ""
+    # allowedRoles: []

@@ -16,3 +16,5 @@ auth:
 
 gateway:
   proxyReadTimeout: 36000s
+plugins: 
+  enabledPlugins: ["docker"]
