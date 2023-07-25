@@ -42,9 +42,11 @@ docker-compose down
 |   mysql   | 10.100.20.131 |                      |
 |   ldap    | 10.100.20.132 | 389端口映射到宿主机  |
 | slurmdbd  | 10.100.20.133 |                      |
-| slurmctld | 10.100.20.134 | 8999端口映射到宿主机 |
+| slurmctld | 10.100.20.134 | 8999端口(适配器)映射到宿主机 |
 |    c1     | 10.100.20.135 |                      |
 |   login   | 10.100.20.136 |                      |
+
+> ldap管理员用户: cn=Manager,ou=hpc,o=pku，密码:admin
 
 ### 2.2 启动SCOW
 
