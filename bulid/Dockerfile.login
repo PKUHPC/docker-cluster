@@ -104,6 +104,8 @@ COPY adapter/ /adapter/
 COPY client.sh .
 RUN ulimit -n 10240;./client.sh docker
 
+RUN yum groupinstall "Xfce" -y
+
 COPY supervisor/ /etc/supervisor/conf.d/
 
 COPY bulid/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

@@ -33,6 +33,9 @@ docker-compose up -d
 
 # 删除
 docker-compose down
+
+# 向SlurmDBD注册集群
+./register_cluster.sh
 ```
 
 所有容器使用slurm-net网络，slurm启动后有如下服务：
@@ -47,6 +50,24 @@ docker-compose down
 |   login   | 10.100.20.136 |                      |
 
 > ldap管理员用户: cn=Manager,ou=hpc,o=pku，密码:admin
+
+进入slurmctld容器，进行集群管理
+
+```shell
+# 进入slurmctld容器
+docker exec -it slurmctld bash
+
+# 查看集群信息
+sinfo
+
+# 进入共享目录
+cd /data/
+
+# 创建用户家目录、软件安装目录
+mkdir home software
+```
+
+
 
 ### 2.2 启动SCOW
 
@@ -134,3 +155,170 @@ vim config/clusters/linux.yaml
 ./cli compose up -d
 ```
 
+### 2.4 多集群支持
+
+修改`docker-compose.yaml`，增加slurm_02集群的容器，`services`节点下增加如下配置：
+
+```yaml
+ mysql_02:
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/mariadb:10.10
+    hostname: mysql_02
+    container_name: mysql_02
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: slurm_acct_db
+      MYSQL_USER: slurm
+      MYSQL_PASSWORD: password
+    volumes:
+      - var_lib_mysql_02:/var/lib/mysql
+    networks:
+      slurm-net:
+        ipv4_address: 10.100.20.231
+
+
+  slurmdbd_02:
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
+    build:
+      context: .
+      args:
+        SLURM_TAG: ${SLURM_TAG:-slurm-21-08-6-1}
+    command: ["slurmdbd"]
+    container_name: slurmdbd_02
+    hostname: slurmdbd_02
+    privileged: true
+    volumes:
+      - etc_munge_02:/etc/munge
+      - etc_slurm_02:/etc/slurm
+      - var_log_slurm_02:/var/log/slurm
+    expose:
+      - "6819"
+    depends_on:
+      - mysql_02
+      - ldap
+    networks:
+      slurm-net:
+        ipv4_address: 10.100.20.233
+
+  slurmctld_02:
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
+    command: ["slurmctld"]
+    container_name: slurmctld_02
+    hostname: slurmctld_02
+    privileged: true
+    volumes:
+      - etc_munge_02:/etc/munge
+      - etc_slurm_02:/etc/slurm
+      - slurm_jobdir_02:/data
+      - var_log_slurm_02:/var/log/slurm
+    expose:
+      - "6817"
+      - "8999"
+    ports:
+      - '8998:8999'
+    depends_on:
+      - "slurmdbd_02"
+    networks:
+      slurm-net:
+        ipv4_address: 10.100.20.234
+
+  c1_02:
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
+    command: ["slurmd"]
+    hostname: c1_02
+    privileged: true
+    container_name: c1_02
+    volumes:
+      - etc_munge_02:/etc/munge
+      - etc_slurm_02:/etc/slurm
+      - slurm_jobdir_02:/data
+      - var_log_slurm_02:/var/log/slurm
+    expose:
+      - "6818"
+    depends_on:
+      - "slurmctld_02"
+    networks:
+      slurm-net:
+        ipv4_address: 10.100.20.235
+
+  login_02:
+    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-login-21.08.6}
+    command: ["slurmd"]
+    privileged: true
+    hostname: login_02
+    container_name: login_02
+    volumes:
+      - etc_munge_02:/etc/munge
+      - etc_slurm_02:/etc/slurm
+      - slurm_jobdir_02:/data
+      - var_log_slurm_02:/var/log/slurm
+      - /root/.ssh/authorized_keys:/root/.ssh/authorized_keys
+    expose:
+      - "6818"
+    depends_on:
+      - "slurmctld_02"
+    networks:
+      slurm-net:
+        ipv4_address: 10.100.20.236
+```
+
+volumes节点下增加如下配置：
+
+```yaml
+  etc_munge_02:
+  etc_slurm_02:
+  slurm_jobdir_02:
+  var_lib_mysql_02:
+  var_log_slurm_02:
+```
+
+> 主要修改的配置是容器名称、IP，volumes名称及映射，端口映射，确保与第一个集群隔离的同时使用相同的LDAP
+
+
+
+修改slurm配置文件`slurm.conf`，主要修改hostname相关配置，改为slurm_02集群配置：
+
+```shell
+# 路径中docker-cluster_etc_slurm_02根据实际环境可能有所不同，注意调整
+vim  /var/lib/docker/volumes/docker-cluster_etc_slurm_02/_data/slurm.conf
+
+# 修改如下参数：
+ClusterName=slurm_02
+ControlMachine=slurmctld_02
+ControlAddr=slurmctld_02
+
+AccountingStorageHost=slurmdbd_02
+
+NodeName=c1_02 RealMemory=1000 State=UNKNOWN
+NodeName=login_02 RealMemory=1000 State=UNKNOWN
+
+PartitionName=normal Default=yes Nodes=c1_02 Priority=50 DefMemPerCPU=500 Shared=NO MaxNodes=2 MaxTime=5-00:00:00 DefaultTime=5-00:00:00 State=UP
+```
+
+修改slurmdbd.conf：
+
+```shell
+# 路径中docker-cluster_etc_slurm_02根据实际环境可能有所不同，注意调整
+vim  /var/lib/docker/volumes/docker-cluster_etc_slurm_02/_data/slurmdbd.conf
+
+# 修改如下参数：
+DbdAddr=slurmdbd_02
+DbdHost=slurmdbd_02
+StorageHost=mysql_02
+```
+
+重启集群：
+
+```shell
+docker-compose down
+docker-compose up -d
+```
+
+> slurm_02集群firewall端口开放、端口转发参见前述文档。slurmdbd_02集群接入SCOW参见多集群接入
+
+## 3. 其他
+
+- [镜像构建](doc/images.md)
+
+- slurm集群搭建参考：[slurm-docker-cluster](https://github.com/giovtorres/slurm-docker-cluster)
+
+  

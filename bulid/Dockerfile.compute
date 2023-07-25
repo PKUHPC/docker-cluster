@@ -4,7 +4,7 @@ LABEL org.opencontainers.image.source="https://github.com/giovtorres/slurm-docke
       org.opencontainers.image.title="slurm-docker-cluster" \
       org.opencontainers.image.description="Slurm Docker cluster on Rocky Linux 8" \
       org.label-schema.docker.cmd="docker-compose up -d" \
-      maintainer="Giovanni Torres"
+      maintainer="PKU ICODE"
 
 ARG SLURM_TAG=slurm-21-08-6-1
 ARG GOSU_VERSION=1.11
@@ -14,12 +14,16 @@ COPY TurboVNC.repo /etc/yum.repos.d
 RUN set -ex \
     && yum makecache \
     && yum -y update \
-    && yum -y install dnf-plugins-core \
+    && yum -y install dnf-plugins-core epel-release \
     && yum config-manager --set-enabled powertools \
     && yum -y install \
        wget \
+       openssh-server \
+       sudo \
        turbovnc \
-       epel-release \
+       supervisor \
+       procps \
+       emacs \
        bzip2 \
        perl \
        gcc \
@@ -94,13 +98,17 @@ COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 RUN set -x \
     && chown slurm:slurm /etc/slurm/slurmdbd.conf \
     && chmod 600 /etc/slurm/slurmdbd.conf
-
-RUN yum groupinstall "Xfce" -y
-
+RUN ssh-keygen -A
+RUN rm -rf /run/nologin
+COPY adapter/ /adapter/
 COPY client.sh .
 RUN ulimit -n 10240;./client.sh docker
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+COPY supervisor/ /etc/supervisor/conf.d/
+
+COPY bulid/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+WORKDIR /adapter/
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 CMD ["slurmdbd"]
