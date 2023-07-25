@@ -99,12 +99,14 @@ firewall-cmd --zone=public --add-port=8999/tcp --permanent
 firewall-cmd --zone=public --add-port=389/tcp --permanent
 
 # redis端口转发配置，其中10.100.20.140为scow redis容器的IP
-firewall-cmd  --add-forward-port=port=6379:proto=tcp:toaddr=10.100.20.140:toport=6379
+firewall-cmd  --permanent --add-forward-port=port=6379:proto=tcp:toaddr=10.100.20.140:toport=6379
 
 # ssh端口转发配置10.100.20.136为slurm登录容器节点IP，2022为本机端口
 firewall-cmd --permanent --add-forward-port=port=2022:proto=tcp:toaddr=10.100.20.136:toport=22
 
 #转发桌面服务端口
 firewall-cmd --add-rich-rule='rule family="ipv4" forward-port to-addr="10.100.20.136" to-port="5900-6900" protocol="tcp" port="5900-6900"'  --permanent
+
+firewall-cmd --reload
 ```
 
