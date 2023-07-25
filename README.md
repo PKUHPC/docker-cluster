@@ -2,10 +2,10 @@
 
 - docker
 - docker-compose
-- firewall
+- firewalld
 - 其他
 
-环境配置参见[基础环境准备](doc/base.md)
+环境配置参见：[基础环境准备](doc/base.md)
 
 
 
@@ -271,7 +271,7 @@ volumes节点下增加如下配置：
   var_log_slurm_02:
 ```
 
-> 主要修改的配置是容器名称、IP，volumes名称及映射，端口映射，确保与第一个集群隔离的同时使用相同的LDAP
+> 主要修改的配置是容器名称、IP，volumes名称及映射，端口映射，确保与第一个集群隔离的同时使用相同的LDAP。详细配置参见：[docker-compose.multi-cluster.yml](docker-compose.multi-cluster.yml)
 
 
 
