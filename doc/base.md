@@ -8,7 +8,7 @@
 setenforce 0
 sed -i 's#SELINUX=enforcing#SELINUX=disabled#g' /etc/sysconfig/selinux
 sed -i 's#SELINUX=enforcing#SELINUX=disabled#g' /etc/selinux/config
-reboot
+
 ```
 
 时间同步：
@@ -52,16 +52,12 @@ yum-config-manager \
 # 安装Docker CE
 yum install docker-ce -y
 
-# 安装指定版本Docker CE
-yum list docker-ce --showduplicates | sort -r
-yum install docker-ce-23.0.6 -y
+
 
 # 启动Docker CE并设置开机启动
 systemctl start docker
 systemctl enable docker
 
-# 验证Docker环境
-docker run hello-world
 ```
 
 安装docker-compose：
@@ -69,7 +65,6 @@ docker run hello-world
 ```Bash
 # 下载安装
 curl -L "https://github.com/docker/compose/releases/download/v2.7.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-mv docker-compose-linux-x86_64 /usr/local/bin/docker-compose
 # 赋权
 chmod +x /usr/local/bin/docker-compose
 
