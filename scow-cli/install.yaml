@@ -7,7 +7,8 @@ portal:
   portMappings: {}
 mis:
   dbPassword: must!chang3this
-  portMappings: {}
+  portMappings: 
+     db: 3306
 log:
   fluentd:
     logDir: /var/log/fluentd
