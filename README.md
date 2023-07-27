@@ -90,7 +90,7 @@ chmod +x cli
 
 ### 2.3 Dev Container对接slurm
 
-修改集群配置文件`$SCOW_CONFIG_PATH\clusters\hpc01.yaml` ，修改登录节点和集群适配器url:
+修改集群配置文件`$SCOW_CONFIG_PATH\clusters\hpc01.yaml` ，将文件名`hpc01.yaml`修改为`linux.yaml`，修改登录节点和集群适配器url:
 
 ```yaml
 # {{ ip }} 替换成部署docker slurm的机器IP地址
