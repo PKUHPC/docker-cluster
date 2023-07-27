@@ -88,7 +88,43 @@ chmod +x cli
 
 > SCOW的其他部署等操作请参见[相关文档](https://pkuhpc.github.io/SCOW/docs/deploy)
 
-### 2.3 slurm多登录节点支持
+### 2.3 Dev Container对接slurm
+
+修改集群配置文件`$SCOW_CONFIG_PATH\clusters\hpc01.yaml` ，修改登录节点和集群适配器url:
+
+```yaml
+# {{ ip }} 替换成部署docker slurm的机器IP地址
+loginNodes:
+  - name: 登录节点
+    address: {{ ip }}:2022
+
+adapterUrl: {{ ip }}:8999
+```
+
+修改认证配置文件`$SCOW_CONFIG_PATH\auth.yaml` ，修改ldap服务地址和redis地址：
+
+```yaml
+# {{ ip }} 替换成部署docker slurm的机器IP地址
+ldap:
+  url: ldap://{{ ip }}
+
+redisUr1: {{ ip }}:6379
+```
+
+修改管理系统配置文件`$SCOW_CONFIG_PATH\mis.yaml` 修改数据库连接地址:
+
+```yaml
+# {{ ip }} 替换成部署docker slurm的机器IP地址
+db:
+  host: {{ ip }}
+  port: 3306
+  user: root
+  dbName: scow
+```
+
+> 若未修改端口默认配置，只需按照上述修改即可。若修改了则需参照[基础环境准备](doc/base.md)的防火墙端口设置进行相应修改
+
+### 2.4 slurm多登录节点支持
 
 修改`docker-compose.yml`文件，参照login节点部分的内容，添加一个login02:
 
@@ -155,7 +191,7 @@ vim config/clusters/linux.yaml
 ./cli compose up -d
 ```
 
-### 2.4 多集群支持
+### 2.5 多集群支持
 
 修改`docker-compose.yaml`，增加slurm_02集群的容器，`services`节点下增加如下配置：
 
