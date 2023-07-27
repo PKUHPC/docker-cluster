@@ -1,0 +1,46 @@
+version: '3'
+services:
+  log:
+    networks:
+      - slurm-net
+
+  gateway:
+    networks:
+      - slurm-net
+
+  redis:
+    networks:
+      slurm-net:
+        ipv4_address: 10.100.20.140
+
+  auth:
+    networks:
+      - slurm-net
+
+  portal-server:
+    networks:
+      - slurm-net
+
+  portal-web:
+    networks:
+      - slurm-net
+
+  novnc:
+    networks:
+      - slurm-net
+
+  mis-server:
+    networks:
+      - slurm-net
+
+  mis-web:
+    networks:
+      - slurm-net
+
+  db:
+    networks:
+      - slurm-net
+networks:
+  slurm-net:
+    external: true
+
