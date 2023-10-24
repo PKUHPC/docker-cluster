@@ -164,7 +164,7 @@ NodeName=login02 RealMemory=1000 State=UNKNOWN
 
 ```shell
 docker-compose down
-docker-compsoe up -d
+docker-compose up -d
 ```
 
 配置login02容器节点的ssh转发端口，例如本机3022端口：
