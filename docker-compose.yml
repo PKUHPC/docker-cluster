@@ -2,7 +2,7 @@ version: "2.2"
 
 services:
   mysql:
-    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/mariadb:10.10
+    image: pkuicode/mariadb:10.10
     hostname: mysql
     container_name: mysql
     environment:
@@ -17,7 +17,7 @@ services:
         ipv4_address: 10.100.20.131
 
   ldap:
-    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/ldap:sh
+    image: pkuicode/slurm_ldap:sh
     hostname: ldap
     container_name: ldap
     expose:
@@ -31,7 +31,7 @@ services:
         ipv4_address: 10.100.20.132
 
   slurmdbd:
-    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
+    image: pkuicode/slurm-compute:21.08.6
     build:
       context: .
       args:
@@ -54,7 +54,7 @@ services:
         ipv4_address: 10.100.20.133
 
   slurmctld:
-    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
+    image: pkuicode/slurm-compute:21.08.6
     command: ["slurmctld"]
     container_name: slurmctld
     hostname: slurmctld
@@ -76,7 +76,7 @@ services:
         ipv4_address: 10.100.20.134
 
   c1:
-    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-compute-21.08.6}
+    image: pkuicode/slurm-compute:21.08.6
     command: ["slurmd"]
     hostname: c1
     privileged: true
@@ -95,7 +95,7 @@ services:
         ipv4_address: 10.100.20.135
 
   login:
-    image: mirrors.pku.edu.cn/pkuhpc-icode/slurm-docker/slurm:${IMAGE_TAG:-login-21.08.6}
+    image: pkuicode/slurm-login:21.08.6
     command: ["slurmd"]
     privileged: true
     hostname: login
