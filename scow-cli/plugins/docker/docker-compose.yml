@@ -1,236 +1,54 @@
 version: '3'
 services:
   log:
-    restart: unless-stopped
-    environment: []
-    ports:
-      - '24224:24224'
-      - 24224:24224/udp
-    image: fluentd:v1.14.0-1.0
-    volumes:
-      - /var/log/fluentd:/fluentd/log
-      - ./fluent/fluent.conf:/fluentd/etc/fluent.conf
-    depends_on: []
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: log
     networks:
       - slurm-net
 
   gateway:
-    restart: unless-stopped
-    environment:
-      - SCOW_LAUNCH_APP=gateway
-      - BASE_PATH=
-      - PORTAL_PATH=/
-      - MIS_PATH=/mis
-      - CLIENT_MAX_BODY_SIZE=1G
-      - PROXY_READ_TIMEOUT=36000s
-      - PUBLIC_PATH=/__public__/
-      - PUBLIC_DIR=/app/apps/gateway/public/
-      - EXTRA=
-    ports:
-      - '80:80'
-    image: mirrors.pku.edu.cn/pkuhpc/scow/scow:master
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - ./public:/app/apps/gateway/public/
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: gateway
     networks:
       - slurm-net
 
   redis:
-    restart: unless-stopped
-    environment: []
-    ports: 
-      - '127.0.0.1:6379:6379'
-    image: redis:alpine
-    volumes: []
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: redis
     networks:
       slurm-net:
         ipv4_address: 10.100.20.140
 
   auth:
-    restart: unless-stopped
-    environment:
-      - SCOW_LAUNCH_APP=auth
-      - BASE_PATH=/
-      - LOG_LEVEL=info
-      - LOG_PRETTY=false
-      - EXTRA_ALLOWED_CALLBACK_HOSTNAMES=localhost
-    ports: []
-    image: mirrors.pku.edu.cn/pkuhpc/scow/scow:master
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - ./config:/etc/scow
-      - ~/.ssh:/root/.ssh
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: auth
     networks:
       - slurm-net
 
   portal-server:
-    restart: unless-stopped
-    environment:
-      - SCOW_LAUNCH_APP=portal-server
-      - PORTAL_BASE_PATH=/
-      - LOG_LEVEL=info
-      - LOG_PRETTY=false
-    ports: []
-    image: mirrors.pku.edu.cn/pkuhpc/scow/scow:master
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - ./config:/etc/scow
-      - ~/.ssh:/root/.ssh
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: portal-server
     networks:
       - slurm-net
 
   portal-web:
-    restart: unless-stopped
-    environment:
-      - SCOW_LAUNCH_APP=portal-web
-      - BASE_PATH=/
-      - MIS_URL=/mis
-      - MIS_DEPLOYED=true
-      - AUTH_EXTERNAL_URL=/auth
-      - NOVNC_CLIENT_URL=/vnc
-      - CLIENT_MAX_BODY_SIZE=1G
-      - PUBLIC_PATH=/__public__
-    ports: []
-    image: mirrors.pku.edu.cn/pkuhpc/scow/scow:master
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - ./config:/etc/scow
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: portal-web
     networks:
       - slurm-net
 
   novnc:
-    restart: unless-stopped
-    environment: []
-    ports: []
-    image: ghcr.io/pkuhpc/novnc-client-docker:master
-    volumes: []
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: novnc
     networks:
       - slurm-net
 
   mis-server:
-    restart: unless-stopped
-    environment:
-      - SCOW_LAUNCH_APP=mis-server
-      - DB_PASSWORD=must!chang3this
-      - LOG_LEVEL=info
-      - LOG_PRETTY=false
-    ports: []
-    image: mirrors.pku.edu.cn/pkuhpc/scow/scow:master
-    volumes:
-      - /etc/hosts:/etc/hosts
-      - ./config:/etc/scow
-      - ~/.ssh:/root/.ssh
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: mis-server
     networks:
       - slurm-net
 
   mis-web:
-    restart: unless-stopped
-    environment:
-      - SCOW_LAUNCH_APP=mis-web
-      - BASE_PATH=/mis
-      - PORTAL_URL=/
-      - PORTAL_DEPLOYED=true
-      - AUTH_EXTERNAL_URL=/auth
-      - PUBLIC_PATH=/__public__
-    ports: []
-    image: mirrors.pku.edu.cn/pkuhpc/scow/scow:master
-    volumes:
-      - ./config:/etc/scow
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: mis-web
+    networks:
+      - slurm-net
+
+  audit-server:
+    networks:
+      - slurm-net
+
+  audit-db:
     networks:
       - slurm-net
 
   db:
-    restart: unless-stopped
-    environment:
-      - MYSQL_ROOT_PASSWORD=must!chang3this
-    ports: []
-    image: mysql:8
-    volumes:
-      - db_data:/var/lib/mysql
-    depends_on:
-      - log
-    logging:
-      driver: fluentd
-      options:
-        fluentd-address: localhost:24224
-        mode: non-blocking
-        tag: db
     networks:
       - slurm-net
-
 networks:
   slurm-net:
     external: true
 
-volumes:
-  db_data: {}

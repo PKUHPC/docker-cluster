@@ -75,8 +75,8 @@ mkdir home software
 # 进入目录
 cd docker-cluster/scow-cli
 
-# 下载cli，此次下载v0.8.1，可按需调整
-wget https://github.com/PKUHPC/SCOW/releases/download/v0.8.1/cli-x64
+# 下载最新版本cli
+curl -L -o cli-x64 https://github.com/PKUHPC/SCOW/releases/latest/download/cli-x64
 mv cli-x64 cli
 chmod +x cli
 

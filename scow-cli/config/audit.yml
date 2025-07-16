@@ -1,0 +1,8 @@
+# audit配置文件
+url: audit-server:5000
+db:
+  host: audit-db
+  port: 3306
+  user: root
+  password: mysqlrootpassword
+  dbName: scow_audit
